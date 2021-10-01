@@ -1,0 +1,6 @@
+{
+    "dbhost" : "cmpe-281-soham-database.cdfdg2wpruze.us-east-1.rds.amazonaws.com",
+    "dbname" : "cmpe",
+    "dbuser" :"admin",
+    "dbpassword" :"point0maio"
+}

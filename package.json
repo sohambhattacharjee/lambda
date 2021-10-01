@@ -1,0 +1,12 @@
+{
+  "name": "lambda",
+  "version": "1.0.0",
+  "description": "handler for login and registration requests",
+  "main": "main.js",
+  "author": "Soham Bhattacharjee",
+  "license": "ISC",
+  "dependencies": {
+    "knex": "^0.95.11",
+    "mysql": "^2.18.1"
+  }
+}
