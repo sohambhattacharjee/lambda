@@ -22,12 +22,24 @@ exports.handler = async (event, context) => {
     let body;
     let statusCode = 200;
     const headers = {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,PUT,GET"
     };
 
-    let requestJSON = JSON.parse(event.body);
-
     try {
+        if (event.requestContext.http.method === "OPTIONS") {
+            return {
+                statusCode,
+                body,
+                headers
+            };
+        }
+        let requestJSON
+        if (event.body) {
+            requestJSON = JSON.parse(event.body);
+        }
         const { firstName, lastName, email, password, userRoleId = 2 } = requestJSON
         switch (event.requestContext.http.method) {
             case "PUT":
@@ -64,7 +76,7 @@ exports.handler = async (event, context) => {
                     role_id: userRoleId
                 })
 
-                body = { 's3_folder': folderName, firstName, lastName };
+                body = { 's3_folder': folderName, firstName, lastName, userRoleId };
                 break;
             case "POST":
                 if (!email || !password) {
@@ -74,15 +86,17 @@ exports.handler = async (event, context) => {
                 }
                 const exisitngUser = await knexConnection('users').where('email', email)
                 if (exisitngUser.length > 0) {
-                    const { first_name, last_name, password: saved_password, folder_name } = exisitngUser[0]
+                    const { first_name, last_name, password: saved_password, folder_name, role_id } = exisitngUser[0]
                     if (hashPassword(password) === saved_password) {
                         statusCode = 200
-                        body = { firstName: first_name, lastName: last_name, 's3_folder': folder_name }
+                        body = { firstName: first_name, lastName: last_name, 's3_folder': folder_name, role_id }
                         break;
                     }
                 }
                 statusCode = 400
                 body = { error: "username or password is incorrect" }
+                break;
+            case "OPTIONS":
                 break;
             default:
                 throw new Error(`Unsupported route: "${event.requestContext.http.path}"`);
